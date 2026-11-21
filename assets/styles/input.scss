@@ -1,0 +1,31 @@
+.input {
+    @apply w-full rounded-md border border-black/20 px-3 py-2 text-sm bg-white mb-4;
+
+    &:focus {
+        @apply outline-none border-black;
+    }
+
+    &::placeholder {
+        @apply text-black/40;
+    }
+
+    &:disabled {
+        @apply bg-black/5 cursor-not-allowed opacity-60;
+    }
+
+    &--error {
+        @apply border-red-500;
+
+        &:focus {
+            @apply border-red-500;
+        }
+    }
+}
+
+.label, .form-label {
+    @apply block text-xs font-medium mb-1;
+
+    .input {
+        @apply mt-1;
+    }
+}

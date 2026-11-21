@@ -1,0 +1,18 @@
+{% block form_row_render %}
+    <div{% with {attr: row_attr} %}{{ block('attributes') }}{% endwith %}>
+        {{- form_label(form) -}}
+        {{- form_widget(form, widget_attr) -}}
+
+        {% block form_errors %}
+            {% if errors|length > 0 %}
+                <ul class="form-errors">
+                    {% for error in errors %}
+                        <li class="form-errors__item" id="{{ id ~ '_error' ~ loop.index }}">{{ error.message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endblock %}
+        
+        {{- form_help(form) -}}
+    </div>
+{% endblock %}

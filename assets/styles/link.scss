@@ -1,0 +1,7 @@
+.link {
+    @apply text-blue-700 font-bold;
+
+    &:visited {
+        @apply text-blue-700/50
+    }
+}

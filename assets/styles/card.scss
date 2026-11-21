@@ -1,0 +1,11 @@
+.card {
+    @apply rounded bg-gray-200 p-4 border border-gray-400;
+
+    &__clickable {
+        @apply cursor-pointer;
+
+        &:hover {
+            @apply bg-gray-100;
+        }
+    }
+}

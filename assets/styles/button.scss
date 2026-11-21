@@ -1,0 +1,41 @@
+.btn {
+    @apply inline-block px-2 py-1 rounded-md text-base cursor-pointer text-white;
+
+    &--blue {
+        @apply bg-blue-800;
+
+        &:hover {
+            @apply bg-blue-800/70
+        }
+    }
+
+    &--red {
+        @apply bg-red-800;
+
+        &:hover {
+            @apply bg-red-800/70;
+        }
+    }
+
+    &--neutral {
+        @apply bg-black/80 text-white;
+
+        &:hover {
+            @apply bg-black/60;
+        }
+    }
+
+    &:disabled {
+        @apply bg-black/20 text-black/40 cursor-not-allowed;
+    }
+
+    &--micro {
+        @apply px-1 py-px text-[0.6rem];
+    }
+
+    &--small {
+        @apply px-1 py-0.5 text-sm;
+    }
+}
+
+

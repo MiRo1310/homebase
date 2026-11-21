@@ -1,0 +1,32 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}Anmelden{% endblock %}
+
+{% block body %}
+    <h1 class="mb-8 font-bold">Anmelden</h1>
+
+    {% if error %}
+        <div class="text-red-500">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{{ path('app_login') }}">
+        <div class="w-80">
+            <label class="label">Email
+                <input class="input" type="email" name="_username" value="{{ last_username }}" autofocus>
+            </label>
+
+            <label class="label">Passwort
+                <input class="input" type="password" name="_password">
+            </label>
+
+            <label class="label">Angemeldet bleiben
+                <input class="input" type="checkbox" name="_remember_me">
+            </label>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        </div>
+        <button class="btn btn--blue" type="submit">Einloggen</button>
+    </form>
+{% endblock %}

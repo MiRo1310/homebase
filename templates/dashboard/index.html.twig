@@ -1,0 +1,9 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4 font-bold">Dashboard</h1>
+    <p class="mb-4">Eingeloggt als {{ app.user.userIdentifier }}</p>
+    <a href="{{ path('app_logout') }}" class="btn btn--neutral">Logout</a>
+{% endblock %}
