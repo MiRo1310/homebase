@@ -18,11 +18,11 @@ class SshConnection
     {
     }
 
-    public function connection(string $host, string $user): Exception|SSH2
+    public function connection(string $host, string $user, ?int $port): Exception|SSH2
     {
         $key = PublicKeyLoader::load(file_get_contents($this->path));
 
-        $ssh = new SSH2($host);          // baut die TCP-Verbindung auf (Port 22)
+        $ssh = new SSH2($host, $port);
 
         if (!$ssh->login($user, $key)) {
             throw new AuthenticationException("Error login, check user");

@@ -8,8 +8,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: "app:device")]
-class Commands
+#[AsCommand('app:device')]
+class DeviceCommands
 {
     public function __construct(
         private DeviceService $deviceService,
@@ -17,33 +17,12 @@ class Commands
     {
     }
 
-    #[AsCommand(':updates:one')]
+    #[AsCommand('sync-updates', description: 'Sync update info for devices')]
     public function syncUpdateInfoForOneDevice(
-        #[Argument('The host to connect')] string      $host,
-        #[Argument('The user to connect with')] string $user,
-        OutputInterface                                $output): int
+        #[Argument('The user to connect with')] ?string $name = null,
+        OutputInterface                                 $output): int
     {
-        $output->writeln("Connecting to host: " . $host . " with User: " . $user);
-
-        $success = $this->deviceService->syncDeviceUpdates($output, $host, $user);
-
-
-//        $output->writeln("Command");
-//        $output->writeln($ssh->exec('uname -r')); // Version Proxmox
-//        $output->writeln("Kernelname: " . $deviceInformation->kernalName);
-//        $output->writeln($ssh->exec('apt list --upgradable')); // Liste der Updates
-//        $output->writeln($ssh->exec('apt-get -s upgrade')); // Liste der Updates
-
-
-        return $success ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    #[AsCommand(':updates:all')]
-    public function syncUpdateInfoForAllDevice(
-        OutputInterface $output): int
-    {
-        $output->writeln("Running command syncAllDeviceUpdates");
-        $success = $this->deviceService->syncAllDeviceUpdates($output);
+        $success = $this->deviceService->syncDeviceUpdates($output, $name);
 
         return $success ? Command::SUCCESS : Command::FAILURE;
     }

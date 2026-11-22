@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Repository\Device;
 
 use App\Entity\Device;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Repository\SpecificationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class DeviceRepository extends ServiceEntityRepository
+class DeviceRepository extends SpecificationRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

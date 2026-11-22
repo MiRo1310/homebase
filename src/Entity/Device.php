@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Account\Enum\UserRole;
-use App\Repository\UserRepository;
+use App\Repository\Device\DeviceRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-#[UniqueEntity(fields: ['email'])]
+
 #[ORM\HasLifecycleCallbacks]
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Entity(repositoryClass: DeviceRepository::class)]
+class Device
 {
     use Timestampable;
 
@@ -23,67 +19,95 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    private string $email;
+    #[ORM\Column(length: 50, unique: true)]
+    private string $name;
+
+    #[ORM\Column(length: 255)]
+    private string $host;
 
     #[ORM\Column]
-    private string $hashedPassword;
+    private int $port = 22;
 
-    #[ORM\Column(type: 'json')]
-    private array $roles = [UserRole::User->value];
+    #[ORM\Column(length: 20)]
+    private string $username;
 
-    public function __construct(string $email)
+    public function __construct(string $name, string $host, string $username, int $port = 22)
     {
-        $this->email = $email;
+        $this->name = $name;
+        $this->host = $host;
+        $this->username = $username;
+        $this->port = $port;
     }
 
+    /**
+     * @param string $host
+     */
+    public function setHost(string $host): void
+    {
+        $this->host = $host;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): string
+    /**
+     * @param string $port
+     */
+    public function setPort(int $port): void
     {
-        return $this->email;
+        $this->port = $port;
     }
 
-    public function setEmail(string $email): void
+    /**
+     * @return string
+     */
+    public function getPort(): int
     {
-        $this->email = $email;
+        return $this->port;
     }
 
-    public function getUserIdentifier(): string
+    /**
+     * @param string $username
+     */
+    public function setUsername(string $username): void
     {
-        return $this->email;
+        $this->username = $username;
     }
 
-    public function getPassword(): string
+    /**
+     * @return string
+     */
+    public function getUsername(): string
     {
-        return $this->hashedPassword;
-    }
-
-    public function getHashedPassword(): ?string
-    {
-        return $this->hashedPassword;
-    }
-
-    public function setHashedPassword(string $hashedPassword): void
-    {
-        $this->hashedPassword = $hashedPassword;
-    }
-
-    public function getRoles(): array
-    {
-        return array_values(array_unique([...$this->roles, UserRole::User->value]));
-    }
-
-    public function setRoles(array $roles): void
-    {
-        $this->roles = $roles;
-    }
-
-    public function hasRole(UserRole $role): bool
-    {
-        return in_array($role->value, $this->getRoles(), true);
+        return $this->username;
     }
 }

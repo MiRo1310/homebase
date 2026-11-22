@@ -10,8 +10,8 @@ class AptUpgradeParser
     private const string SEARCHED = "Inst ";
 
     /**
-     * @param string $list
-     * @return array
+     * @param string $str
+     * @return Packages
      */
     public function parseUpdateList(string $str): Packages
     {
