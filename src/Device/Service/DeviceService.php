@@ -8,14 +8,17 @@ use App\Entity\Device;
 use App\Repository\Device\DeviceByDeviceNameSpecification;
 use App\Repository\Device\DeviceRepository;
 use App\Ssh\SshConnection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DeviceService
 {
     public function __construct(
-        private readonly SshConnection    $sshConnection,
-        private readonly AptUpgradeParser $aptUpgradeParser,
-        private readonly DeviceRepository $deviceRepository,
+        private readonly SshConnection          $sshConnection,
+        private readonly AptUpgradeParser       $aptUpgradeParser,
+        private readonly DeviceRepository       $deviceRepository,
+        private readonly EntityManagerInterface $entityManager
     )
     {
     }
@@ -40,16 +43,18 @@ class DeviceService
                 $failed++;
                 continue;
             };
-            //TODO write to DB
+
+            $this->updateInDB($device, $package);
         }
         if ($failed === 0) {
+
             return true;
         }
         $output->writeln("For " . $failed . " devices failed to get update Infos.");
         return false;
     }
 
-    private function getDeviceUpdates(OutputInterface $output, Device $device): Packages|bool
+    private function getDeviceUpdates(OutputInterface $output, Device $device): Packages|false
     {
         $host = $device->getHost();
         $port = $device->getPort();
@@ -86,5 +91,16 @@ class DeviceService
         }
 
         return $this->deviceRepository->findAll();
+    }
+
+    private function updateInDB(Device $device, Packages $packages): void
+    {
+        $device->getUpdates()->clear();
+
+        foreach ($packages->mapToDeviceUpdate($device) as $deviceUpdate) {
+            $device->getUpdates()->add($deviceUpdate);
+        }
+
+        $this->entityManager->flush();
     }
 }

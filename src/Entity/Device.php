@@ -21,7 +21,7 @@ class Device
     private ?int $id = null;
 
     /** @var Collection<int, DeviceUpdate> für IDE/PHPStan: Liste von DeviceUpdate-Objekten, Schlüssel int */
-    #[ORM\OneToMany(targetEntity: DeviceUpdate::class, mappedBy: 'device', orphanRemoval: true)] // ein Gerät -> viele Updates; mappedBy = Property $device in DeviceUpdate; orphanRemoval = aus der Liste entfernt -> beim flush() aus der DB gelöscht
+    #[ORM\OneToMany(targetEntity: DeviceUpdate::class, mappedBy: 'device', orphanRemoval: true, cascade: ['persist'])] // ein Gerät -> viele Updates; mappedBy = Property $device in DeviceUpdate; orphanRemoval = aus der Liste entfernt -> beim flush() aus der DB gelöscht; cascade persist = neu zur Liste hinzugefügte Updates werden beim flush() automatisch gespeichert (nur Doctrine/PHP, keine Migration nötig)
     private Collection $updates; // Doctrine\Common\Collections\Collection (Interface); Doctrine füllt sie beim Laden selbst
 
     #[ORM\Column(length: 50, unique: true)]
