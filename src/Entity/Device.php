@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\Device\DeviceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: DeviceRepository::class)]
@@ -18,6 +19,10 @@ class Device
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    /** @var Collection<int, DeviceUpdate> für IDE/PHPStan: Liste von DeviceUpdate-Objekten, Schlüssel int */
+    #[ORM\OneToMany(targetEntity: DeviceUpdate::class, mappedBy: 'device', orphanRemoval: true)] // ein Gerät -> viele Updates; mappedBy = Property $device in DeviceUpdate; orphanRemoval = aus der Liste entfernt -> beim flush() aus der DB gelöscht
+    private Collection $updates; // Doctrine\Common\Collections\Collection (Interface); Doctrine füllt sie beim Laden selbst
 
     #[ORM\Column(length: 50, unique: true)]
     private string $name;
@@ -37,6 +42,7 @@ class Device
         $this->host = $host;
         $this->username = $username;
         $this->port = $port;
+        $this->updates = new ArrayCollection();
     }
 
     /**
@@ -109,5 +115,21 @@ class Device
     public function getUsername(): string
     {
         return $this->username;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getUpdates(): Collection
+    {
+        return $this->updates;
+    }
+
+    /**
+     * @param Collection $updates
+     */
+    public function setUpdates(Collection $updates): void
+    {
+        $this->updates = $updates;
     }
 }
