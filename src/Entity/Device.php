@@ -24,6 +24,9 @@ class Device
     #[ORM\OneToMany(targetEntity: DeviceUpdate::class, mappedBy: 'device', orphanRemoval: true, cascade: ['persist'])] // ein Gerät -> viele Updates; mappedBy = Property $device in DeviceUpdate; orphanRemoval = aus der Liste entfernt -> beim flush() aus der DB gelöscht; cascade persist = neu zur Liste hinzugefügte Updates werden beim flush() automatisch gespeichert (nur Doctrine/PHP, keine Migration nötig)
     private Collection $updates; // Doctrine\Common\Collections\Collection (Interface); Doctrine füllt sie beim Laden selbst
 
+    #[ORM\OneToOne(mappedBy: 'device')]   // mappedBy = Property $device in Ressource
+    private ?Ressource $ressource = null; // nullable: ein neues Gerät hat noch keine Messung
+
     #[ORM\Column(length: 50, unique: true)]
     private string $name;
 

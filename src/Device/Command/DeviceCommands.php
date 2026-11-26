@@ -18,11 +18,23 @@ class DeviceCommands
     }
 
     #[AsCommand('sync-updates', description: 'Sync update info for devices')]
-    public function syncUpdateInfoForOneDevice(
+    public function syncUpdateInfos(
+        OutputInterface                                 $output,
         #[Argument('The user to connect with')] ?string $name = null,
-        OutputInterface                                 $output): int
+    ): int
     {
         $success = $this->deviceService->syncDeviceUpdates($output, $name);
+
+        return $success ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    #[AsCommand('sync-ressource', description: 'Sync device status values')]
+    public function syncRessourceUsage(
+        OutputInterface                                 $output,
+        #[Argument('The user to connect with')] ?string $name = null,
+    ): int
+    {
+        $success = $this->deviceService->syncDeviceRessourceUsage($output, $name);
 
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
