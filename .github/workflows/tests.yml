@@ -1,36 +1,71 @@
 name: Tests
 
 on:
-  push:
-  pull_request:
+    push:
+    pull_request:
 
 jobs:
-  phpunit:
-    runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    phpunit:
+        runs-on: ubuntu-latest
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: ctype, iconv
-          coverage: none
+        steps:
+            -   uses: actions/checkout@v4
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: ctype, iconv
+                    coverage: none
 
-      - name: Cache composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+            -   name: Get composer cache directory
+                id: composer-cache
+                run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+            -   name: Cache composer dependencies
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: ${{ runner.os }}-composer-
 
-      - name: Run PHPUnit
-        run: php bin/phpunit
+            -   name: Install dependencies
+                run: composer install --prefer-dist --no-progress
+
+            -   name: Run PHPUnit
+                run: php bin/phpunit
+
+    audit:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v7
+            -   name: Use Node.js 22.x
+                uses: actions/setup-node@v7
+                with:
+                    node-version: 22.x
+                    cache: 'yarn'
+            -   run: yarn install --frozen-lockfile
+            -   name: Audit dependencies
+                id: audit
+                run: yarn audit
+                continue-on-error: true
+            # GitHub kennt keinen gelben "allow failure"-Status -> gefundene Lücken als Warning-Annotation + Tabelle in der Run-Summary
+            -   name: Report audit result
+                if: steps.audit.outcome == 'failure'
+                run: |
+                    yarn audit --json | grep '"auditSummary"' > audit-summary.json || true
+                    node -e '
+                      const fs = require("fs");
+                      const raw = fs.readFileSync("audit-summary.json", "utf8").trim();
+                      if (!raw) {
+                        console.log("::warning title=yarn audit::Audit fehlgeschlagen - Details im Schritt Audit dependencies");
+                        process.exit(0);
+                      }
+                      const v = JSON.parse(raw).data.vulnerabilities;
+                      const levels = ["critical", "high", "moderate", "low", "info"];
+                      const found = levels.filter((l) => v[l] > 0).map((l) => `${v[l]} ${l}`).join(", ");
+                      console.log(`::warning title=yarn audit::Sicherheitsluecken gefunden: ${found}`);
+                      const rows = levels.map((l) => `| ${l} | ${v[l]} |`).join("\n");
+                      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### yarn audit\n\n| Schweregrad | Anzahl |\n| --- | --- |\n${rows}\n`);
+                    '
